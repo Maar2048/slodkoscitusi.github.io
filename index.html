@@ -322,13 +322,20 @@
     <div class="layout">
         <div class="form-side">
             <form action="https://api.web3forms.com/submit" method="POST" id="cake-form" name="zamowienie-tortu" data-netlify="true">
-                
-                <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
-                <input type="hidden" name="subject" value="Nowe zamówienie na tort! 🎂">
-                <input type="hidden" name="from_name" value="Mega Cake Builder">
-                
-                <div class="header-section">
-                    <h1>Mega Cake Builder 🎂</h1>
+    
+    <!-- Twój klucz API -->
+    <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
+    
+    <!-- 1. Zmieniony, spersonalizowany temat maila, który od razu rzuci Ci się w oczy -->
+    <input type="hidden" name="subject" value="🎂 Cześć Tusiu! Ktoś zamówił nowy tort!">
+    <input type="hidden" name="from_name" value="Mega Cake Builder">
+    
+    <!-- 2. Ukryta wiadomość, która wyświetli się na samej górze w treści maila -->
+    <input type="hidden" name="Wiadomosc_dla_Ciebie" value="Cześć Tsuiu! Masz powód do radości - właśnie wpadło nowe, przepyszne zamówienie z Twojego Cake Buildera. Poniżej znajdziesz wszystkie wybrane przez klienta składniki. Powodzenia w pieczeniu! 🧑‍🍳">
+    
+    <div class="header-section">
+        <h1>Mega Cake Builder 🎂</h1>
+        <!-- Reszta kodu pozostaje bez zmian... -->
                     <p style="font-size: 1.2rem;">Więcej pięter, więcej smaków! Zjedź w dół, wybieraj składniki i obserwuj jak obok buduje się Twoje zamówienie.</p>
                 </div>
 
