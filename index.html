@@ -1,107 +1,515 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kreator Tortów</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Cake Builder - Zamówienie</title>
+    <style>
+        :root {
+            /* Zmienne kolorystyczne tortu kontrolowane przez JS */
+            --sponge1-color: #f3e5ab;   /* Wanilia dół */
+            --jam-color: #e63946;       /* Truskawka nadzienie */
+            --sponge2-color: #5c3a21;   /* Czekolada góra */
+            --frosting-color: #fffcf2;  /* Śmietanka polewa */
+            --sprinkles-display: none;  /* Domyślnie brak posypki */
+            --sprinkles-bg: radial-gradient(circle, #ff0 20%, transparent 20%),
+                            radial-gradient(circle, #0f0 20%, transparent 20%),
+                            radial-gradient(circle, #00f 20%, transparent 20%),
+                            radial-gradient(circle, #f0f 20%, transparent 20%);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fdfbf7;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* --- UKŁAD STRONY (SPLIT SCREEN) --- */
+        .layout {
+            display: flex;
+        }
+
+        .form-side {
+            width: 50%;
+            padding: 40px;
+        }
+
+        .cake-side {
+            width: 50%;
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e0f7fa;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        /* --- STYLIZACJA FORMULARZA --- */
+        .header-section {
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #00838f;
+            margin-bottom: 10px;
+        }
+
+        .step {
+            min-height: 65vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 2px dashed #eee;
+            padding-bottom: 20px;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .step p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .step label {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 8px 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .step label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        input[type="radio"] {
+            margin-right: 20px;
+            transform: scale(1.5);
+            accent-color: #00838f;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #00838f;
+        }
+
+        button.submit-btn {
+            background: #00838f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button.submit-btn:hover:not(:disabled) {
+            background: #006064;
+            transform: scale(1.02);
+        }
+        
+        button.submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- BUDOWA TORTU (GRAFIKA CSS) --- */
+        .cake-builder {
+            position: relative;
+            width: 300px;
+            height: 500px;
+        }
+
+        .plate {
+            width: 280px;
+            height: 30px;
+            background: #d4d4d4;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 15px 20px rgba(0,0,0,0.2), inset 0 -5px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .cake-part {
+            position: absolute;
+            left: 50%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sponge-1 {
+            width: 220px;
+            height: 80px;
+            background: var(--sponge1-color);
+            border-radius: 15px;
+            bottom: 65px;
+            z-index: 11;
+            transform: translateX(-50%) translateY(-400px);
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .jam {
+            width: 215px;
+            height: 15px;
+            background: var(--jam-color);
+            border-radius: 5px;
+            bottom: 145px;
+            z-index: 12;
+            transform: translateX(-50%) translateY(-500px);
+        }
+
+        .sponge-2 {
+            width: 200px;
+            height: 70px;
+            background: var(--sponge2-color);
+            border-radius: 15px;
+            bottom: 160px;
+            z-index: 13;
+            transform: translateX(-50%) translateY(-600px);
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .frosting {
+            width: 210px;
+            height: 60px;
+            background: var(--frosting-color);
+            border-radius: 30px 30px 10px 10px;
+            bottom: 230px;
+            z-index: 14;
+            transform: translateX(-50%) translateY(-700px);
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .frosting::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: var(--sprinkles-bg);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px, 5px 15px, 15px 5px;
+            display: var(--sprinkles-display);
+            opacity: 0.8;
+        }
+
+        .topping {
+            bottom: 290px;
+            z-index: 15;
+            transform: translateX(-50%) translateY(-800px);
+        }
+
+        .cherry {
+            width: 40px;
+            height: 40px;
+            background: #e63946;
+            border-radius: 50%;
+            box-shadow: inset -10px -10px 15px rgba(0,0,0,0.3);
+            display: none;
+        }
+        
+        .cherry::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            border: 3px solid transparent;
+            border-top-color: #2e7d32;
+            border-right-color: #2e7d32;
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+
+        .candle {
+            width: 15px;
+            height: 50px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #ff5252 5px, #ff5252 10px);
+            border-radius: 3px;
+            display: none;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .candle::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 15px;
+            background: #ffca28;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 10px #ffca28, 0 0 20px #ff9800;
+            animation: flicker 0.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+        }
+
+        .cake-part.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* --- WERSJA RESPONSYWNA --- */
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .form-side { width: 100%; padding-bottom: 50vh; }
+            .cake-side {
+                width: 100%;
+                height: 45vh;
+                top: auto;
+                bottom: 0;
+                border-top: 4px solid #fff;
+            }
+            .cake-builder { transform: scale(0.65) translateY(50px); }
+            .step { min-height: 50vh; }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    
-    <div class="form-section">
-      <h2>Zbuduj swój wymarzony tort! 🎂</h2>
-      <p>Wypełnij poniższy formularz, a po prawej stronie zobaczysz podgląd swojego zamówienia.</p>
-      
-      <form action="https://api.web3forms.com/submit" method="POST" id="cake-form">
-        <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
-        <input type="hidden" name="redirect" value="https://web3forms.com/success">
+    <div class="layout">
+        <div class="form-side">
+            <form action="https://api.web3forms.com/submit" method="POST" id="cake-form" name="zamowienie-tortu" data-netlify="true">
+                
+                <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
+                <input type="hidden" name="subject" value="Nowe zamówienie na tort! 🎂">
+                <input type="hidden" name="from_name" value="Mega Cake Builder">
+                
+                <div class="header-section">
+                    <h1>Mega Cake Builder 🎂</h1>
+                    <p style="font-size: 1.2rem;">Więcej pięter, więcej smaków! Zjedź w dół, wybieraj składniki i obserwuj jak obok buduje się Twoje zamówienie.</p>
+                </div>
 
-        <fieldset>
-          <legend>Dane kontaktowe</legend>
-          <label>Imię i nazwisko:
-            <input type="text" name="name" placeholder="Jan Kowalski" required>
-          </label>
-          <label>Email:
-            <input type="email" name="email" placeholder="jan@example.com" required>
-          </label>
-          <label>Data odbioru:
-            <input type="date" name="delivery_date" required>
-          </label>
-        </fieldset>
+                <div class="step" id="step-sponge1">
+                    <h2>1. Dolny biszkopt (Baza)</h2>
+                    <label><input type="radio" name="sponge1" value="#f3e5ab" checked> Waniliowy</label>
+                    <label><input type="radio" name="sponge1" value="#5c3a21"> Czekoladowy</label>
+                    <label><input type="radio" name="sponge1" value="#8d6e63"> Orzechowy</label>
+                </div>
 
-        <fieldset>
-          <legend>Kreator Tortu</legend>
-          
-          <label>Wielkość (Ilość porcji):
-            <select name="size" id="size" required>
-              <option value="Mały (6-8 porcji)">Mały (6-8 porcji)</option>
-              <option value="Średni (10-14 porcji)" selected>Średni (10-14 porcji)</option>
-              <option value="Duży (16-20 porcji)">Duży (16-20 porcji)</option>
-            </select>
-          </label>
+                <div class="step" id="step-jam">
+                    <h2>2. Owocowe nadzienie (Środek)</h2>
+                    <label><input type="radio" name="jam" value="#e63946" checked> Mus truskawkowy</label>
+                    <label><input type="radio" name="jam" value="#ffb703"> Konfitura brzoskwiniowa</label>
+                    <label><input type="radio" name="jam" value="#3e2723"> Czekoladowy Ganache</label>
+                </div>
 
-          <label>Smak biszkoptu:
-            <select name="sponge" id="sponge" required>
-              <option value="jasny">Jasny (Waniliowy)</option>
-              <option value="ciemny">Ciemny (Kakaowy)</option>
-              <option value="red_velvet">Red Velvet</option>
-            </select>
-          </label>
+                <div class="step" id="step-sponge2">
+                    <h2>3. Górne piętro (Mniejsze)</h2>
+                    <label><input type="radio" name="sponge2" value="#5c3a21" checked> Czekoladowy</label>
+                    <label><input type="radio" name="sponge2" value="#f3e5ab"> Waniliowy</label>
+                    <label><input type="radio" name="sponge2" value="#e2b8ca"> Malinowy</label>
+                </div>
 
-          <label>Smak kremu głównego:
-            <select name="cream" id="cream" required>
-              <option value="smietankowy">Śmietankowy (Biały)</option>
-              <option value="czekoladowy">Czekoladowy (Brązowy)</option>
-              <option value="malinowy">Malinowy (Różowy)</option>
-              <option value="pistacjowy">Pistacjowy (Zielony)</option>
-            </select>
-          </label>
+                <div class="step" id="step-frosting">
+                    <h2>4. Krem zewnętrzny</h2>
+                    <label><input type="radio" name="frosting" value="#fffcf2" checked> Śmietankowy</label>
+                    <label><input type="radio" name="frosting" value="#ff9eaf"> Truskawkowy róż</label>
+                    <label><input type="radio" name="frosting" value="#81c784"> Miętowy zielony</label>
+                </div>
 
-          <label>Dodatki:
-            <div class="checkbox-group">
-              <label><input type="checkbox" name="addons" id="addon_fruits" value="Świeże owoce"> Świeże owoce na górze</label>
-              <label><input type="checkbox" name="addons" id="addon_crunch" value="Chrupka pralinowa"> Chrupka pralinowa w środku</label>
-              <label><input type="checkbox" name="addons" id="addon_drip" value="Czekoladowy Drip"> Czekoladowy drip</label>
+                <div class="step" id="step-sprinkles">
+                    <h2>5. Wybierz posypkę</h2>
+                    <label><input type="radio" name="sprinkles" value="none" checked> Bez posypki</label>
+                    <label><input type="radio" name="sprinkles" value="color"> Kolorowe Konfetti</label>
+                    <label><input type="radio" name="sprinkles" value="choco"> Wiórki Czekoladowe</label>
+                </div>
+
+                <div class="step" id="step-topping">
+                    <h2>6. Wisienka czy Świeczka?</h2>
+                    <label><input type="radio" name="topping" value="cherry" checked> Klasyczna Wisienka</label>
+                    <label><input type="radio" name="topping" value="candle"> Urodzinowa Świeczka z ogniem</label>
+                </div>
+
+                <div class="step" id="step-summary">
+                    <h2>7. Gdzie wysłać wypiek?</h2>
+                    <p>Twoje zamówienie zostanie zapisane w Netlify oraz powiadomienie poleci przez Web3Forms.</p>
+                    <input type="text" name="imie" placeholder="Twoje imię" required>
+                    <input type="email" name="email" placeholder="Adres e-mail" required>
+                    <button type="submit" class="submit-btn">Złóż zamówienie!</button>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="cake-side">
+            <div class="cake-builder">
+                <div class="cake-part topping cherry" id="visual-topping"></div>
+                <div class="cake-part frosting" id="visual-frosting"></div>
+                <div class="cake-part sponge-2" id="visual-sponge2"></div>
+                <div class="cake-part jam" id="visual-jam"></div>
+                <div class="cake-part sponge-1" id="visual-sponge1"></div>
+                <div class="plate"></div>
             </div>
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>Szczegóły</legend>
-          <label>Wiadomość / Motyw na tort:
-            <textarea name="message" rows="4" placeholder="Opisz, jak ma wyglądać Twój tort (np. napis na topperze, motyw z bajki...)" required></textarea>
-          </label>
-        </fieldset>
-
-        <button type="submit">Złóż zamówienie</button>
-      </form>
+        </div>
     </div>
 
-    <div class="preview-section">
-      <div class="sticky-preview">
-        <h3>Podgląd zamówienia</h3>
+    <script>
+        // Funkcja do aktualizacji zmiennych CSS
+        function setStyle(property, value) {
+            document.documentElement.style.setProperty(property, value);
+        }
+
+        // Zmiana kolorów po kliknięciu
+        document.querySelectorAll('input[name="sponge1"]').forEach(r => r.addEventListener('change', e => setStyle('--sponge1-color', e.target.value)));
+        document.querySelectorAll('input[name="jam"]').forEach(r => r.addEventListener('change', e => setStyle('--jam-color', e.target.value)));
+        document.querySelectorAll('input[name="sponge2"]').forEach(r => r.addEventListener('change', e => setStyle('--sponge2-color', e.target.value)));
+        document.querySelectorAll('input[name="frosting"]').forEach(r => r.addEventListener('change', e => setStyle('--frosting-color', e.target.value)));
+
+        // Kontrola posypki
+        document.querySelectorAll('input[name="sprinkles"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'none') {
+                    setStyle('--sprinkles-display', 'none');
+                } else if (val === 'color') {
+                    setStyle('--sprinkles-display', 'block');
+                    setStyle('--sprinkles-bg', 'radial-gradient(circle, #ff0 20%, transparent 20%), radial-gradient(circle, #0f0 20%, transparent 20%), radial-gradient(circle, #00f 20%, transparent 20%), radial-gradient(circle, #f0f 20%, transparent 20%)');
+                } else if (val === 'choco') {
+                    setStyle('--sprinkles-display', 'block');
+                    setStyle('--sprinkles-bg', 'radial-gradient(circle, #3e2723 25%, transparent 25%), radial-gradient(circle, #4e342e 25%, transparent 25%)');
+                }
+            });
+        });
+
+        // Kontrola elementu na szczycie
+        const toppingDiv = document.getElementById('visual-topping');
+        toppingDiv.style.display = 'block';
+
+        document.querySelectorAll('input[name="topping"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const isCurrentlyVisible = toppingDiv.classList.contains('visible');
+                
+                if (e.target.value === 'cherry') {
+                    toppingDiv.className = 'cake-part topping cherry';
+                } else {
+                    toppingDiv.className = 'cake-part topping candle';
+                }
+                
+                if (isCurrentlyVisible) toppingDiv.classList.add('visible');
+            });
+        });
+
+        // MECHANIZM OBSŁUGI SCROLLA
+        window.addEventListener('scroll', () => {
+            const triggerPoint = window.innerHeight * 0.70; 
+
+            const steps = [
+                { trigger: document.getElementById('step-sponge1'), target: document.getElementById('visual-sponge1') },
+                { trigger: document.getElementById('step-jam'), target: document.getElementById('visual-jam') },
+                { trigger: document.getElementById('step-sponge2'), target: document.getElementById('visual-sponge2') },
+                { trigger: document.getElementById('step-frosting'), target: document.getElementById('visual-frosting') },
+                { trigger: document.getElementById('step-topping'), target: document.getElementById('visual-topping') }
+            ];
+
+            steps.forEach(step => {
+                const topLocation = step.trigger.getBoundingClientRect().top;
+                if (topLocation < triggerPoint) {
+                    step.target.classList.add('visible');
+                } else {
+                    step.target.classList.remove('visible');
+                }
+            });
+        });
+
+        // WYSYŁKA FORMULARZA (NETLIFY + WEB3FORMS)
+        document.getElementById('cake-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const myForm = e.target;
+            const formData = new FormData(myForm);
+            const submitBtn = myForm.querySelector('.submit-btn');
+            
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = "Wysyłanie...";
+            submitBtn.disabled = true;
+
+            const netlifyData = new URLSearchParams(formData);
+            netlifyData.append("form-name", "zamowienie-tortu");
+            
+            const netlifyPromise = fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: netlifyData.toString()
+            }).catch(err => console.warn("Błąd Netlify:", err)); 
+
+            const web3FormsPromise = fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            }).catch(err => console.warn("Błąd Web3Forms:", err));
+
+            try {
+                await Promise.all([netlifyPromise, web3FormsPromise]);
+                
+                alert('Genialnie! Twoje zamówienie na spersonalizowany tort zostało zapisane! 🎉');
+                myForm.reset();
+                
+                document.querySelectorAll('.cake-part').forEach(part => part.classList.remove('visible'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                alert('Ups, wystąpił problem podczas komunikacji z serwerem. Spróbuj ponownie.');
+                console.error(error);
+            } finally {
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        });
         
-        <div class="cake-visual">
-          <div class="fruits hidden" id="preview-fruits">🍓🫐🍓</div>
-          <div class="drip hidden" id="preview-drip"></div>
-          <div class="cake-layer cream" id="preview-cream"></div>
-          <div class="cake-layer sponge" id="preview-sponge"></div>
-          <div class="plate"></div>
-        </div>
-
-        <div class="summary">
-          <p><strong>Rozmiar:</strong> <span id="sum-size">Średni (10-14 porcji)</span></p>
-          <p><strong>Biszkopt:</strong> <span id="sum-sponge">Jasny (Waniliowy)</span></p>
-          <p><strong>Krem:</strong> <span id="sum-cream">Śmietankowy (Biały)</span></p>
-          <p><strong>Dodatki:</strong> <span id="sum-addons">Brak</span></p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="script.js"></script>
+        // Inicjacja widoku po załadowaniu (żeby pierwszy element był widoczny, jeśli jesteśmy na samej górze)
+        window.dispatchEvent(new Event('scroll'));
+    </script>
 </body>
 </html>
