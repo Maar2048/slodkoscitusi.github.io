@@ -33,11 +33,13 @@
         /* --- UKŁAD STRONY (SPLIT SCREEN) --- */
         .layout {
             display: flex;
+            flex-wrap: wrap;
         }
 
         .form-side {
             width: 50%;
             padding: 40px;
+            transition: padding 0.3s ease;
         }
 
         .cake-side {
@@ -52,20 +54,23 @@
             background: linear-gradient(135deg, #ffe4e1 0%, #ffc0cb 100%); 
             box-shadow: -5px 0 20px rgba(0,0,0,0.05);
             z-index: 100;
+            transition: all 0.3s ease;
         }
 
         /* --- STYLIZACJA FORMULARZA --- */
         .header-section {
-            min-height: 50vh;
+            min-height: 45vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
         h1 {
-            font-size: 3rem;
+            /* Płynne skalowanie fontu między komputerem a smartfonem */
+            font-size: clamp(2rem, 4vw, 3rem);
             color: #d81b60;
             margin-bottom: 10px;
+            line-height: 1.2;
         }
 
         .price-badge {
@@ -77,6 +82,7 @@
             font-weight: bold;
             margin-bottom: 20px;
             width: fit-content;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
         }
 
         .step {
@@ -85,7 +91,8 @@
             flex-direction: column;
             justify-content: center;
             border-bottom: 2px dashed #f8bbd0;
-            padding-bottom: 20px;
+            padding-bottom: 25px;
+            padding-top: 25px;
         }
         
         .step:last-child {
@@ -93,13 +100,14 @@
         }
 
         .step h2 {
-            font-size: 1.8rem;
+            font-size: clamp(1.35rem, 3vw, 1.8rem);
             color: #333;
             margin-bottom: 15px;
+            line-height: 1.3;
         }
 
         .step p {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
             color: #666;
             margin-bottom: 15px;
         }
@@ -108,15 +116,16 @@
             display: flex;
             align-items: center;
             padding: 15px;
-            margin: 6px 0;
+            margin: 8px 0;
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.02);
             border: 1px solid #f0f0f0;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
             font-weight: bold;
+            -webkit-tap-highlight-color: transparent; /* Usuwa błysk podświetlenia na iOS */
         }
 
         .step label:hover {
@@ -126,10 +135,11 @@
         }
 
         input[type="radio"], input[type="checkbox"] {
-            margin-right: 20px;
-            transform: scale(1.5);
+            margin-right: 18px;
+            transform: scale(1.4);
             accent-color: #d81b60;
             cursor: pointer;
+            flex-shrink: 0; /* Zapobiega spłaszczaniu checkboxa przy długim tekście */
         }
 
         input[type="number"], input[type="text"], input[type="email"] {
@@ -149,7 +159,7 @@
         }
 
         .price-estimate {
-            font-size: 1.5rem;
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
             font-weight: bold;
             color: #d81b60;
             margin: 20px 0;
@@ -166,7 +176,7 @@
             color: white;
             border: none;
             padding: 15px 30px;
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
@@ -195,6 +205,7 @@
             width: 320px;
             height: 500px;
             filter: drop-shadow(0 30px 20px rgba(0,0,0,0.15));
+            transition: transform 0.3s ease;
         }
 
         .plate {
@@ -215,7 +226,7 @@
             position: absolute;
             left: 50%;
             opacity: 0;
-            visibility: hidden; /* Ukrywa przed filtrem rzucającym cień, kiedy jest 0% opacity */
+            visibility: hidden; 
             transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: inset -40px 0 30px rgba(0,0,0,0.12), inset 15px 0 20px rgba(255,255,255,0.4);
         }
@@ -247,7 +258,7 @@
             height: 35px;
             background: var(--cream-color);
             border-radius: 10px;
-            bottom: calc(113px + var(--crunch-offset)); /* Dynamiczna pozycja */
+            bottom: calc(113px + var(--crunch-offset)); 
             z-index: 13;
             transform: translateX(-50%) translateY(-500px);
         }
@@ -274,16 +285,15 @@
         }
 
         .frosting {
-            width: 270px; /* Okrywa szerokość biszkoptów (240px) i boki (15px każdy) */
-            height: calc(169px + var(--crunch-offset)); /* Rozciąga się na całego torta */
+            width: 270px; 
+            height: calc(169px + var(--crunch-offset)); 
             background: transparent;
-            border: 15px solid var(--frosting-color); /* Krawędź wokół tortu */
+            border: 15px solid var(--frosting-color); 
             border-bottom: none;
             border-radius: 25px 25px 0 0;
             bottom: 60px;
             z-index: 16;
             transform: translateX(-50%) translateY(-700px);
-            /* Specjalny układ rzucania 3D zamiast wewnętrznego box-shadow */
             box-shadow: none;
             filter: drop-shadow(15px 0 15px rgba(0,0,0,0.15)) drop-shadow(-10px 0 10px rgba(255,255,255,0.3));
         }
@@ -298,9 +308,9 @@
             text-align: center;
             display: var(--decor-display);
             transform: translateX(-50%) translateY(-800px);
-            filter: none; /* Brak rzucania cienia zgodnie z prośbą */
+            filter: none; 
             animation: float 3s ease-in-out infinite;
-            box-shadow: none; /* Element ten nie potrzebuje wewnetrznego cienia */
+            box-shadow: none; 
         }
 
         .cake-part.visible {
@@ -315,19 +325,64 @@
             100% { transform: translateX(-50%) translateY(0); }
         }
 
-        /* --- WERSJA RESPONSYWNA --- */
-        @media (max-width: 768px) {
-            .layout { flex-direction: column; }
-            .form-side { width: 100%; padding-bottom: 50vh; }
+        /* --- MEDIA QUERIES (RESPONSIVE DESIGN) --- */
+        
+        /* Zmiana na układ pionowy dla tabletów i mniejszych ekranów laptopów */
+        @media (max-width: 992px) {
+            .layout { 
+                flex-direction: column; 
+            }
+            .form-side { 
+                width: 100%; 
+                padding: 30px;
+                padding-bottom: 45vh; /* Zostawia wolne miejsce nad nieruchomym tortem */
+            }
             .cake-side {
                 width: 100%;
-                height: 45vh;
+                height: 40vh; /* Tort zajmuje stałe 40% wysokości dolnej ekranu */
                 top: auto;
                 bottom: 0;
+                left: 0;
                 border-top: 4px solid #fff;
+                background: linear-gradient(135deg, #ffe4e1 0%, #ffc0cb 100%);
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
             }
-            .cake-builder { transform: scale(0.60) translateY(80px); }
-            .step { min-height: 50vh; }
+            .cake-builder { 
+                transform: scale(0.60) translateY(50px); /* Lepsze wycentrowanie na tablecie */
+            }
+            .step { 
+                min-height: 45vh; /* Nieco mniejszy krok ułatwiający czytanie */
+            }
+        }
+
+        /* Dedykowane optymalizacje dla smartfonów */
+        @media (max-width: 480px) {
+            .form-side {
+                padding: 20px 15px;
+                padding-bottom: 40vh;
+            }
+            .cake-side {
+                height: 35vh; /* Na małych ekranach zmniejszamy wysokość podglądu, by odsłonić formularz */
+            }
+            .cake-builder { 
+                transform: scale(0.48) translateY(30px); /* Bezpieczna skala - tort nie zostanie ucięty */
+            }
+            .step {
+                min-height: 40vh;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .step label {
+                padding: 12px;
+                margin: 5px 0;
+            }
+            input[type="radio"], input[type="checkbox"] {
+                margin-right: 12px;
+                transform: scale(1.2);
+            }
+            .header-section {
+                min-height: 35vh;
+            }
         }
     </style>
 </head>
@@ -347,7 +402,7 @@
             <div class="header-section">
                 <h1>Słodkości Tusi 🎂</h1>
                 <div class="price-badge">Baza: 17 zł/porcja | Minimum: 10 porcji (250 zł)</div>
-                <p style="font-size: 1.2rem;">Zbuduj swój wymarzony tort! Zjedź w dół, wybieraj smaki, dobieraj dekoracje i obserwuj, jak obok buduje się przekrój Twojego zamówienia.</p>
+                <p style="font-size: 1.1rem; line-height: 1.5; margin: 0;">Zbuduj swój wymarzony tort! Zjedź w dół, wybieraj smaki, dobieraj dekoracje i obserwuj, jak obok buduje się przekrój Twojego zamówienia.</p>
             </div>
 
             <div class="step" id="step-portions">
@@ -408,10 +463,10 @@
             <div class="step" id="step-decorations">
                 <h2>7. Dekoracje na torcie</h2>
                 <p>Co dodać na wierzch? (Te opcje powiększają kwotę zamówienia)</p>
-                <label><input type="checkbox" name="Dekoracja[]" value="Personalizowany Topper" class="price-modifier decor-trigger" data-price="25" data-emoji="💫️️"> Personalizowany Topper (+25 zł)</label>
+                <label><input type="checkbox" name="Dekoracja[]" value="Personalizowany Topper" class="price-modifier decor-trigger" data-price="25" data-emoji="🏷️"> Personalizowany Topper (+25 zł)</label>
                 <label><input type="checkbox" name="Dekoracja[]" value="Żywe Kwiaty" class="price-modifier decor-trigger" data-price="40" data-emoji="🌸"> Żywe kwiaty (+40 zł)</label>
-                <label><input type="checkbox" name="Dekoracja[]" value="Makaroniki" class="price-modifier decor-trigger" data-price="35" data-emoji="🧸"> Figurka z masy cukrowej (+50 zł)</label>
-                <label><input type="checkbox" name="Dekoracja[]" value="Wydruk opłatek" class="price-modifier decor-trigger" data-price="20" data-emoji="✨️"> Wydruk jadalny (+20 zł)</label>
+                <label><input type="checkbox" name="Dekoracja[]" value="Makaroniki" class="price-modifier decor-trigger" data-price="35" data-emoji="🍡"> Makaroniki (+35 zł)</label>
+                <label><input type="checkbox" name="Dekoracja[]" value="Wydruk opłatek" class="price-modifier decor-trigger" data-price="20" data-emoji="🖼️"> Wydruk jadalny (+20 zł)</label>
             </div>
 
             <div class="step" id="step-summary">
@@ -442,7 +497,6 @@
     </div>
 
     <script>
-        // Funkcja do aktualizacji zmiennych CSS
         function setStyle(property, value) {
             document.documentElement.style.setProperty(property, value);
         }
@@ -453,7 +507,7 @@
         document.querySelectorAll('input[name="Fruzelina"]').forEach(r => r.addEventListener('change', e => setStyle('--jam-color', e.target.dataset.color)));
         document.querySelectorAll('input[name="Tynk"]').forEach(r => r.addEventListener('change', e => setStyle('--frosting-color', e.target.dataset.color)));
 
-        // Obsługa chrupki (zarządza włącznikiem i odsuwaniem górnych warstw bez dziury)
+        // Obsługa chrupki
         document.getElementById('crunch-checkbox').addEventListener('change', (e) => {
             if (e.target.checked) {
                 setStyle('--crunch-display', 'block');
@@ -486,18 +540,16 @@
             });
         });
 
-        // Dynamiczna wycena (Kalkulator) + zaokrąglanie w górę
+        // Dynamiczna wycena (Kalkulator) + zaokrąglanie w górę do liczb podzielnych przez 10
         const portionsInput = document.getElementById('portions-input');
         const priceDisplay = document.getElementById('price-display');
         const priceModifiers = document.querySelectorAll('.price-modifier');
 
         function updatePrice() {
-            // 1. Cena bazowa z porcji
             const portions = parseInt(portionsInput.value) || 10;
             const calculatedBase = portions * 17;
             const basePrice = Math.max(250, calculatedBase); 
             
-            // 2. Dodatki (Dekoracje)
             let extrasPrice = 0;
             priceModifiers.forEach(mod => {
                 if(mod.checked) {
@@ -505,7 +557,6 @@
                 }
             });
 
-            // 3. Kwota całkowita zaokrąglona w górę do potęgi dziesiątek
             const finalPrice = basePrice + extrasPrice;
             const finalPriceRounded = Math.ceil(finalPrice / 10) * 10;
             
@@ -515,9 +566,11 @@
         portionsInput.addEventListener('input', updatePrice);
         priceModifiers.forEach(mod => mod.addEventListener('change', updatePrice));
 
-        // MECHANIZM OBSŁUGI SCROLLA (Animacja opadających warstw)
+        // ZOPTYMALIZOWANY MECHANIZM AKTYWACJI WARSTW DLA RÓŻNYCH EKRANÓW
         window.addEventListener('scroll', () => {
-            const triggerPoint = window.innerHeight * 0.70; 
+            // Jeśli szerokość ekranu jest <= 992px (mobile/tablet), przesuwamy punkt wyzwalania wyżej (0.4), bo dół zasłania tort.
+            const isMobileLayout = window.innerWidth <= 992;
+            const triggerPoint = isMobileLayout ? window.innerHeight * 0.40 : window.innerHeight * 0.70; 
 
             const steps = [
                 { trigger: document.getElementById('step-sponge'), targets: [document.getElementById('visual-sponge1'), document.getElementById('visual-sponge2')] },
