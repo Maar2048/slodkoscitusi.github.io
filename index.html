@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mega Cake Builder - Zamówienie</title>
+    <title>Słodkości Tusi - Zamówienie Tortu</title>
     <style>
         :root {
             /* Zmienne kolorystyczne tortu kontrolowane przez JS */
-            --sponge1-color: #f3e5ab;   /* Wanilia dół */
-            --jam-color: #e63946;       /* Truskawka nadzienie */
-            --sponge2-color: #5c3a21;   /* Czekolada góra */
-            --frosting-color: #fffcf2;  /* Śmietanka polewa */
-            --sprinkles-display: none;  /* Domyślnie brak posypki */
-            --sprinkles-bg: radial-gradient(circle, #ff0 20%, transparent 20%),
-                            radial-gradient(circle, #0f0 20%, transparent 20%),
-                            radial-gradient(circle, #00f 20%, transparent 20%),
-                            radial-gradient(circle, #f0f 20%, transparent 20%);
+            --sponge-color: #f3e5ab;    /* Biszkopt bazowy */
+            --cream-color: #fffaea;     /* Krem wnętrze */
+            --jam-color: #e63946;       /* Frużelina */
+            --crunch-color: #3e2723;    /* Chrupka */
+            --crunch-display: none;     /* Ukryta dopóki nie zaznaczy */
+            --frosting-color: #1a1a1a;  /* Tynk (góra/zewnątrz) */
         }
 
         *, *::before, *::after {
@@ -49,7 +46,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #e0f7fa;
+            background: #ffe4e1; /* Bardziej "Tusiowy" różowy klimat */
             box-shadow: -5px 0 20px rgba(0,0,0,0.05);
             z-index: 100;
         }
@@ -64,8 +61,18 @@
 
         h1 {
             font-size: 3rem;
-            color: #00838f;
+            color: #d81b60; /* Kolor marki */
             margin-bottom: 10px;
+        }
+
+        .price-badge {
+            display: inline-block;
+            background: #fce4ec;
+            color: #c2185b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 20px;
         }
 
         .step {
@@ -73,7 +80,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-bottom: 2px dashed #eee;
+            border-bottom: 2px dashed #f8bbd0;
             padding-bottom: 20px;
         }
         
@@ -84,19 +91,20 @@
         .step h2 {
             font-size: 1.8rem;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .step p {
             font-size: 1.1rem;
             color: #666;
+            margin-bottom: 15px;
         }
 
         .step label {
             display: flex;
             align-items: center;
             padding: 15px;
-            margin: 8px 0;
+            margin: 6px 0;
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -111,29 +119,41 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
 
-        input[type="radio"] {
+        input[type="radio"], input[type="checkbox"] {
             margin-right: 20px;
             transform: scale(1.5);
-            accent-color: #00838f;
+            accent-color: #d81b60;
         }
 
-        input[type="text"], input[type="email"] {
+        input[type="number"], input[type="text"], input[type="email"] {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
-            border: 2px solid #eee;
+            border: 2px solid #f8bbd0;
             border-radius: 10px;
             font-size: 1.1rem;
             box-sizing: border-box;
             outline: none;
         }
 
-        input[type="text"]:focus, input[type="email"]:focus {
-            border-color: #00838f;
+        input:focus {
+            border-color: #d81b60;
+        }
+
+        .price-estimate {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d81b60;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px dashed #d81b60;
         }
 
         button.submit-btn {
-            background: #00838f;
+            background: #d81b60;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -147,7 +167,7 @@
         }
 
         button.submit-btn:hover:not(:disabled) {
-            background: #006064;
+            background: #c2185b;
             transform: scale(1.02);
         }
         
@@ -167,13 +187,13 @@
         .plate {
             width: 280px;
             height: 30px;
-            background: #d4d4d4;
+            background: #fff;
             border-radius: 50%;
             position: absolute;
             bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 15px 20px rgba(0,0,0,0.2), inset 0 -5px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 20px rgba(0,0,0,0.1), inset 0 -5px 10px rgba(0,0,0,0.05);
             z-index: 10;
         }
 
@@ -186,8 +206,8 @@
 
         .sponge-1 {
             width: 220px;
-            height: 80px;
-            background: var(--sponge1-color);
+            height: 50px;
+            background: var(--sponge-color);
             border-radius: 15px;
             bottom: 65px;
             z-index: 11;
@@ -195,105 +215,58 @@
             box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
         }
 
-        .jam {
+        .crunch {
+            width: 210px;
+            height: 10px;
+            background: var(--crunch-color);
+            border-radius: 5px;
+            bottom: 115px;
+            z-index: 12;
+            transform: translateX(-50%) translateY(-450px);
+            display: var(--crunch-display);
+        }
+
+        .cream {
             width: 215px;
+            height: 30px;
+            background: var(--cream-color);
+            border-radius: 10px;
+            bottom: 125px; /* Zakładamy, że chrupka wchodzi w krem lub leży obok */
+            z-index: 13;
+            transform: translateX(-50%) translateY(-500px);
+            box-shadow: inset -10px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .jam {
+            width: 210px;
             height: 15px;
             background: var(--jam-color);
             border-radius: 5px;
-            bottom: 145px;
-            z-index: 12;
-            transform: translateX(-50%) translateY(-500px);
+            bottom: 155px;
+            z-index: 14;
+            transform: translateX(-50%) translateY(-550px);
         }
 
         .sponge-2 {
             width: 200px;
-            height: 70px;
-            background: var(--sponge2-color);
+            height: 50px;
+            background: var(--sponge-color);
             border-radius: 15px;
-            bottom: 160px;
-            z-index: 13;
+            bottom: 170px;
+            z-index: 15;
             transform: translateX(-50%) translateY(-600px);
             box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
         }
 
         .frosting {
             width: 210px;
-            height: 60px;
-            background: var(--frosting-color);
-            border-radius: 30px 30px 10px 10px;
-            bottom: 230px;
-            z-index: 14;
-            transform: translateX(-50%) translateY(-700px);
-            box-shadow: inset -15px 0 20px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .frosting::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: var(--sprinkles-bg);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px, 5px 15px, 15px 5px;
-            display: var(--sprinkles-display);
-            opacity: 0.8;
-        }
-
-        .topping {
-            bottom: 290px;
-            z-index: 15;
-            transform: translateX(-50%) translateY(-800px);
-        }
-
-        .cherry {
-            width: 40px;
             height: 40px;
-            background: #e63946;
-            border-radius: 50%;
-            box-shadow: inset -10px -10px 15px rgba(0,0,0,0.3);
-            display: none;
-        }
-        
-        .cherry::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 15px;
-            width: 20px;
-            height: 20px;
-            border: 3px solid transparent;
-            border-top-color: #2e7d32;
-            border-right-color: #2e7d32;
-            border-radius: 50%;
-            transform: rotate(-15deg);
-        }
-
-        .candle {
-            width: 15px;
-            height: 50px;
-            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #ff5252 5px, #ff5252 10px);
-            border-radius: 3px;
-            display: none;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .candle::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 15px;
-            background: #ffca28;
-            border-radius: 50% 50% 20% 20%;
-            box-shadow: 0 0 10px #ffca28, 0 0 20px #ff9800;
-            animation: flicker 0.5s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
-            100% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+            background: var(--frosting-color);
+            border-radius: 20px 20px 10px 10px;
+            bottom: 220px;
+            z-index: 16;
+            transform: translateX(-50%) translateY(-700px);
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
         }
 
         .cake-part.visible {
@@ -321,82 +294,95 @@
 
     <div class="layout">
         <div class="form-side">
-            <form action="https://api.web3forms.com/submit" method="POST" id="cake-form" name="zamowienie-tortu" data-netlify="true">
+            <form action="https://api.web3forms.com/submit" method="POST" id="cake-form" name="zamowienie-tortu-tusia" data-netlify="true">
     
-    <!-- Twój klucz API -->
-    <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
-    
-    <!-- 1. Zmieniony, spersonalizowany temat maila, który od razu rzuci Ci się w oczy -->
-    <input type="hidden" name="subject" value="🎂 Cześć Tusiu! Ktoś zamówił nowy tort!">
-    <input type="hidden" name="from_name" value="Mega Cake Builder">
-    
-    <!-- 2. Ukryta wiadomość, która wyświetli się na samej górze w treści maila -->
-    <input type="hidden" name="Wiadomosc_dla_Ciebie" value="Cześć Tsuiu! Masz powód do radości - właśnie wpadło nowe, przepyszne zamówienie z Twojego Cake Buildera. Poniżej znajdziesz wszystkie wybrane przez klienta składniki. Powodzenia w pieczeniu! 🧑‍🍳">
-    
-    <div class="header-section">
-        <h1>Mega Cake Builder 🎂</h1>
-        <!-- Reszta kodu pozostaje bez zmian... -->
-                    <p style="font-size: 1.2rem;">Więcej pięter, więcej smaków! Zjedź w dół, wybieraj składniki i obserwuj jak obok buduje się Twoje zamówienie.</p>
-                </div>
+            <input type="hidden" name="access_key" value="ab73b2c8-e387-4d2a-8e71-a8e7809fc7e2">
+            
+            <input type="hidden" name="subject" value="🎂 Cześć Tusiu! Ktoś zamówił nowy tort!">
+            <input type="hidden" name="from_name" value="Słodkości Tusi">
+            
+            <input type="hidden" name="Wiadomosc_dla_Ciebie" value="Cześć Tusiu! Masz powód do radości - nowe zamówienie z Cake Buildera! Poniżej znajdziesz wszystkie wybrane przez klienta składniki. Powodzenia w pieczeniu! 🧑‍🍳">
+            
+            <div class="header-section">
+                <h1>Słodkości Tusi 🎂</h1>
+                <div class="price-badge">17 zł za porcję | Minimum: 10 porcji (250 zł)</div>
+                <p style="font-size: 1.2rem;">Zbuduj swój wymarzony tort! Zjedź w dół, wybieraj smaki i obserwuj, jak obok buduje się przekrój Twojego zamówienia.</p>
+            </div>
 
-                <div class="step" id="step-sponge1">
-                    <h2>1. Dolny biszkopt (Baza)</h2>
-                    <label><input type="radio" name="Dolny_biszkopt" value="Waniliowy" data-color="#f3e5ab" checked> Waniliowy</label>
-                    <label><input type="radio" name="Dolny_biszkopt" value="Czekoladowy" data-color="#5c3a21"> Czekoladowy</label>
-                    <label><input type="radio" name="Dolny_biszkopt" value="Orzechowy" data-color="#8d6e63"> Orzechowy</label>
-                </div>
+            <div class="step" id="step-portions">
+                <h2>1. Na ile osób przygotowujemy tort?</h2>
+                <p>Podaj liczbę porcji (minimum 10).</p>
+                <input type="number" name="Liczba_porcji" id="portions-input" min="10" value="10" required>
+            </div>
 
-                <div class="step" id="step-jam">
-                    <h2>2. Owocowe nadzienie (Środek)</h2>
-                    <label><input type="radio" name="Nadzienie" value="Mus truskawkowy" data-color="#e63946" checked> Mus truskawkowy</label>
-                    <label><input type="radio" name="Nadzienie" value="Konfitura brzoskwiniowa" data-color="#ffb703"> Konfitura brzoskwiniowa</label>
-                    <label><input type="radio" name="Nadzienie" value="Czekoladowy Ganache" data-color="#3e2723"> Czekoladowy Ganache</label>
-                </div>
+            <div class="step" id="step-sponge">
+                <h2>2. Rodzaj Biszkoptu</h2>
+                <label><input type="radio" name="Biszkopt" value="Waniliowy" data-color="#f3e5ab" checked> Waniliowy</label>
+                <label><input type="radio" name="Biszkopt" value="Czekoladowy" data-color="#5c3a21"> Czekoladowy</label>
+                <label><input type="radio" name="Biszkopt" value="Pistacjowy" data-color="#93c572"> Pistacjowy</label>
+                <label><input type="radio" name="Biszkopt" value="Orzechowy" data-color="#8d6e63"> Orzechowy</label>
+                <label><input type="radio" name="Biszkopt" value="Waniliowy (kolorowy)" data-color="#ffb6c1"> Waniliowy (kolorowy)</label>
+            </div>
 
-                <div class="step" id="step-sponge2">
-                    <h2>3. Górne piętro (Mniejsze)</h2>
-                    <label><input type="radio" name="Gorne_pietro" value="Czekoladowy" data-color="#5c3a21" checked> Czekoladowy</label>
-                    <label><input type="radio" name="Gorne_pietro" value="Waniliowy" data-color="#f3e5ab"> Waniliowy</label>
-                    <label><input type="radio" name="Gorne_pietro" value="Malinowy" data-color="#e2b8ca"> Malinowy</label>
-                </div>
+            <div class="step" id="step-cream">
+                <h2>3. Główny Krem Wnętrza</h2>
+                <label><input type="radio" name="Krem" value="Bita śmietana" data-color="#fffaea" checked> Bita śmietana</label>
+                <label><input type="radio" name="Krem" value="Krem malinowy" data-color="#e8889b"> Krem malinowy</label>
+                <label><input type="radio" name="Krem" value="Krem jagodowy" data-color="#835c8c"> Krem jagodowy</label>
+                <label><input type="radio" name="Krem" value="Krem kinder bueno" data-color="#c8a07c"> Krem kinder bueno</label>
+                <label><input type="radio" name="Krem" value="Krem czekoladowy" data-color="#4e342e"> Krem czekoladowy</label>
+            </div>
 
-                <div class="step" id="step-frosting">
-                    <h2>4. Krem zewnętrzny</h2>
-                    <label><input type="radio" name="Krem" value="Śmietankowy" data-color="#fffcf2" checked> Śmietankowy</label>
-                    <label><input type="radio" name="Krem" value="Truskawkowy róż" data-color="#ff9eaf"> Truskawkowy róż</label>
-                    <label><input type="radio" name="Krem" value="Miętowy zielony" data-color="#81c784"> Miętowy zielony</label>
-                </div>
+            <div class="step" id="step-jam">
+                <h2>4. Owocowa Frużelina</h2>
+                <label><input type="radio" name="Fruzelina" value="Jagodowa" data-color="#5c2c5c" checked> Jagodowa</label>
+                <label><input type="radio" name="Fruzelina" value="Malinowa" data-color="#d6285a"> Malinowa</label>
+                <label><input type="radio" name="Fruzelina" value="Wiśniowa" data-color="#801525"> Wiśniowa</label>
+                <label><input type="radio" name="Fruzelina" value="Mango marakuja" data-color="#ffb703"> Mango marakuja</label>
+                <label><input type="radio" name="Fruzelina" value="Truskawkowa" data-color="#e63946"> Truskawkowa</label>
+            </div>
 
-                <div class="step" id="step-sprinkles">
-                    <h2>5. Wybierz posypkę</h2>
-                    <label><input type="radio" name="Posypka" value="Bez posypki" data-type="none" checked> Bez posypki</label>
-                    <label><input type="radio" name="Posypka" value="Kolorowe Konfetti" data-type="color"> Kolorowe Konfetti</label>
-                    <label><input type="radio" name="Posypka" value="Wiórki Czekoladowe" data-type="choco"> Wiórki Czekoladowe</label>
-                </div>
+            <div class="step" id="step-extras">
+                <h2>5. Chrupka i Owoce (Opcjonalnie)</h2>
+                <p>Wybierz, co jeszcze ma się znaleźć w środku!</p>
+                <label><input type="checkbox" name="Dodatki_Chrupka" value="Chrupka czekoladowa" id="crunch-checkbox"> Chrupka Czekoladowa</label>
+                <p style="margin-top: 15px;">Owoce całe do przełożenia:</p>
+                <label><input type="checkbox" name="Owoce[]" value="Malina"> Malina</label>
+                <label><input type="checkbox" name="Owoce[]" value="Borówka"> Borówka</label>
+                <label><input type="checkbox" name="Owoce[]" value="Wiśnia"> Wiśnia</label>
+                <label><input type="checkbox" name="Owoce[]" value="Mango"> Mango</label>
+                <label><input type="checkbox" name="Owoce[]" value="Truskawka"> Truskawka</label>
+                <label><input type="checkbox" name="Owoce[]" value="Mix owoce leśne"> Mix owoce leśne</label>
+            </div>
 
-                <div class="step" id="step-topping">
-                    <h2>6. Wisienka czy Świeczka?</h2>
-                    <label><input type="radio" name="Dekoracja" value="Klasyczna Wisienka" data-type="cherry" checked> Klasyczna Wisienka</label>
-                    <label><input type="radio" name="Dekoracja" value="Urodzinowa Świeczka" data-type="candle"> Urodzinowa Świeczka z ogniem</label>
-                </div>
+            <div class="step" id="step-frosting">
+                <h2>6. Tynk Zewnętrzny</h2>
+                <p>W czym wykańczamy tort z zewnątrz?</p>
+                <label><input type="radio" name="Tynk" value="Czekoladowy czarny" data-color="#1a1a1a" checked> Czekoladowy (czarny)</label>
+                <label><input type="radio" name="Tynk" value="Czekoladowy brązowy" data-color="#4a3020"> Czekoladowy (brązowy)</label>
+                <label><input type="radio" name="Tynk" value="Milky way biel" data-color="#fffcf2"> Milky way (biel)</label>
+                <label><input type="radio" name="Tynk" value="Milky way kolor" data-color="#a2d2ff"> Milky way (kolor)</label>
+            </div>
 
-                <div class="step" id="step-summary">
-                    <h2>7. Gdzie wysłać wypiek?</h2>
-                    <p>Twoje zamówienie zostanie zapisane w Netlify oraz powiadomienie poleci przez Web3Forms.</p>
-                    <input type="text" name="Imie_i_nazwisko" placeholder="Twoje imię" required>
-                    <input type="email" name="Email" placeholder="Adres e-mail" required>
-                    <button type="submit" class="submit-btn">Złóż zamówienie!</button>
-                </div>
+            <div class="step" id="step-summary">
+                <h2>7. Podsumowanie zamówienia</h2>
+                <div class="price-estimate" id="price-display">Szacowana kwota: 250 zł</div>
+                <input type="text" name="Imie_i_nazwisko" placeholder="Twoje imię i nazwisko" required>
+                <input type="text" name="Telefon" placeholder="Numer telefonu" required>
+                <input type="email" name="Email" placeholder="Adres e-mail" required>
+                <button type="submit" class="submit-btn">Zamawiam u Tusi!</button>
+            </div>
 
             </form>
         </div>
 
         <div class="cake-side">
             <div class="cake-builder">
-                <div class="cake-part topping cherry" id="visual-topping"></div>
                 <div class="cake-part frosting" id="visual-frosting"></div>
                 <div class="cake-part sponge-2" id="visual-sponge2"></div>
                 <div class="cake-part jam" id="visual-jam"></div>
+                <div class="cake-part cream" id="visual-cream"></div>
+                <div class="cake-part crunch" id="visual-crunch"></div>
                 <div class="cake-part sponge-1" id="visual-sponge1"></div>
                 <div class="plate"></div>
             </div>
@@ -409,64 +395,56 @@
             document.documentElement.style.setProperty(property, value);
         }
 
-        // Zmiana kolorów po kliknięciu - ZWRÓĆ UWAGĘ NA e.target.dataset.color zamiast e.target.value
-        document.querySelectorAll('input[name="Dolny_biszkopt"]').forEach(r => r.addEventListener('change', e => setStyle('--sponge1-color', e.target.dataset.color)));
-        document.querySelectorAll('input[name="Nadzienie"]').forEach(r => r.addEventListener('change', e => setStyle('--jam-color', e.target.dataset.color)));
-        document.querySelectorAll('input[name="Gorne_pietro"]').forEach(r => r.addEventListener('change', e => setStyle('--sponge2-color', e.target.dataset.color)));
-        document.querySelectorAll('input[name="Krem"]').forEach(r => r.addEventListener('change', e => setStyle('--frosting-color', e.target.dataset.color)));
+        // Zmiana kolorów po kliknięciu
+        document.querySelectorAll('input[name="Biszkopt"]').forEach(r => r.addEventListener('change', e => setStyle('--sponge-color', e.target.dataset.color)));
+        document.querySelectorAll('input[name="Krem"]').forEach(r => r.addEventListener('change', e => setStyle('--cream-color', e.target.dataset.color)));
+        document.querySelectorAll('input[name="Fruzelina"]').forEach(r => r.addEventListener('change', e => setStyle('--jam-color', e.target.dataset.color)));
+        document.querySelectorAll('input[name="Tynk"]').forEach(r => r.addEventListener('change', e => setStyle('--frosting-color', e.target.dataset.color)));
 
-        // Kontrola posypki - czytamy z data-type
-        document.querySelectorAll('input[name="Posypka"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const val = e.target.dataset.type;
-                if (val === 'none') {
-                    setStyle('--sprinkles-display', 'none');
-                } else if (val === 'color') {
-                    setStyle('--sprinkles-display', 'block');
-                    setStyle('--sprinkles-bg', 'radial-gradient(circle, #ff0 20%, transparent 20%), radial-gradient(circle, #0f0 20%, transparent 20%), radial-gradient(circle, #00f 20%, transparent 20%), radial-gradient(circle, #f0f 20%, transparent 20%)');
-                } else if (val === 'choco') {
-                    setStyle('--sprinkles-display', 'block');
-                    setStyle('--sprinkles-bg', 'radial-gradient(circle, #3e2723 25%, transparent 25%), radial-gradient(circle, #4e342e 25%, transparent 25%)');
-                }
-            });
+        // Obsługa chrupki (pokazuje warstwę jeśli zaznaczone)
+        document.getElementById('crunch-checkbox').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                setStyle('--crunch-display', 'block');
+                document.getElementById('visual-crunch').classList.add('visible');
+            } else {
+                setStyle('--crunch-display', 'none');
+            }
         });
 
-        // Kontrola elementu na szczycie - czytamy z data-type
-        const toppingDiv = document.getElementById('visual-topping');
-        toppingDiv.style.display = 'block';
+        // Dynamiczna wycena (Kalkulator)
+        const portionsInput = document.getElementById('portions-input');
+        const priceDisplay = document.getElementById('price-display');
 
-        document.querySelectorAll('input[name="Dekoracja"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const isCurrentlyVisible = toppingDiv.classList.contains('visible');
-                
-                if (e.target.dataset.type === 'cherry') {
-                    toppingDiv.className = 'cake-part topping cherry';
-                } else {
-                    toppingDiv.className = 'cake-part topping candle';
-                }
-                
-                if (isCurrentlyVisible) toppingDiv.classList.add('visible');
-            });
-        });
+        function updatePrice() {
+            const portions = parseInt(portionsInput.value) || 10;
+            // Zgodnie z ofertą: 17 zł za porcję, ale minimalna kwota zamówienia to 250 zł (dla 10 osób).
+            // Nawet jeśli 10 * 17 = 170 zł, bazujemy na minimum 250 zł.
+            const calculatedPrice = portions * 17;
+            const finalPrice = Math.max(250, calculatedPrice); 
+            priceDisplay.innerText = `Szacowana kwota: ${finalPrice} zł`;
+        }
+        
+        portionsInput.addEventListener('input', updatePrice);
 
-        // MECHANIZM OBSŁUGI SCROLLA
+        // MECHANIZM OBSŁUGI SCROLLA (Animacja opadających warstw)
         window.addEventListener('scroll', () => {
             const triggerPoint = window.innerHeight * 0.70; 
 
+            // Dopasowanie sekcji do elementów tortu
             const steps = [
-                { trigger: document.getElementById('step-sponge1'), target: document.getElementById('visual-sponge1') },
-                { trigger: document.getElementById('step-jam'), target: document.getElementById('visual-jam') },
-                { trigger: document.getElementById('step-sponge2'), target: document.getElementById('visual-sponge2') },
-                { trigger: document.getElementById('step-frosting'), target: document.getElementById('visual-frosting') },
-                { trigger: document.getElementById('step-topping'), target: document.getElementById('visual-topping') }
+                { trigger: document.getElementById('step-sponge'), targets: [document.getElementById('visual-sponge1'), document.getElementById('visual-sponge2')] },
+                { trigger: document.getElementById('step-extras'), targets: [document.getElementById('visual-crunch')] },
+                { trigger: document.getElementById('step-cream'), targets: [document.getElementById('visual-cream')] },
+                { trigger: document.getElementById('step-jam'), targets: [document.getElementById('visual-jam')] },
+                { trigger: document.getElementById('step-frosting'), targets: [document.getElementById('visual-frosting')] }
             ];
 
             steps.forEach(step => {
                 const topLocation = step.trigger.getBoundingClientRect().top;
                 if (topLocation < triggerPoint) {
-                    step.target.classList.add('visible');
+                    step.targets.forEach(el => el.classList.add('visible'));
                 } else {
-                    step.target.classList.remove('visible');
+                    step.targets.forEach(el => el.classList.remove('visible'));
                 }
             });
         });
@@ -484,7 +462,7 @@
             submitBtn.disabled = true;
 
             const netlifyData = new URLSearchParams(formData);
-            netlifyData.append("form-name", "zamowienie-tortu");
+            netlifyData.append("form-name", "zamowienie-tortu-tusia");
             
             const netlifyPromise = fetch("/", {
                 method: "POST",
@@ -500,19 +478,20 @@
             try {
                 await Promise.all([netlifyPromise, web3FormsPromise]);
                 
-                alert('Genialnie! Twoje zamówienie na spersonalizowany tort zostało zapisane! 🎉');
+                alert('Genialnie! Twoje zamówienie u Tusi zostało pomyślnie zapisane! 🎉 Skontaktujemy się wkrótce.');
                 myForm.reset();
+                updatePrice();
                 
                 // Resetowanie wizualizacji tortu na szczyt
                 document.querySelectorAll('.cake-part').forEach(part => part.classList.remove('visible'));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                // Przywrócenie domyślnych kolorów
-                setStyle('--sponge1-color', '#f3e5ab');
+                
+                // Przywrócenie domyślnych kolorów z CSS
+                setStyle('--sponge-color', '#f3e5ab');
+                setStyle('--cream-color', '#fffaea');
                 setStyle('--jam-color', '#e63946');
-                setStyle('--sponge2-color', '#5c3a21');
-                setStyle('--frosting-color', '#fffcf2');
-                setStyle('--sprinkles-display', 'none');
-                toppingDiv.className = 'cake-part topping cherry';
+                setStyle('--crunch-display', 'none');
+                setStyle('--frosting-color', '#1a1a1a');
                 
             } catch (error) {
                 alert('Ups, wystąpił problem podczas komunikacji z serwerem. Spróbuj ponownie.');
@@ -525,6 +504,7 @@
         
         // Inicjacja widoku po załadowaniu
         window.dispatchEvent(new Event('scroll'));
+        updatePrice();
     </script>
 </body>
 </html>
